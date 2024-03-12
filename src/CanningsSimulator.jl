@@ -279,7 +279,8 @@ function trace_allele(
 
 
     fixation = nb_indiv_type_1 >= pop_size
-    return (fixation, nb_generations, history)
+    lost = nb_indiv_type_1 == 0
+    return (fixation, lost, nb_generations, history)
 end;
 
 
@@ -295,13 +296,39 @@ function bootstrap_fixation_probability(
 
     nb_fixations = 0
     for i = 1:nb_simulations
-        fixation_status, num_generations, history = trace_allele(
+        fixation_status, lost_status, num_generations, history = trace_allele(
             nb_indiv_type_1, population_size_modifier, fecundity_selection_modifier, viability_selection_modifier, sampler)
         if fixation_status
             nb_fixations += 1
         end
     end
     return nb_fixations/nb_simulations
+end;
+
+function bootstrap_fixation_and_lost_probabilities(
+    nb_indiv_type_1::Int64,
+    population_size_modifier::Modifier,
+    fecundity_selection_modifier,#::Modifier,
+    viability_selection_modifier::Modifier,
+    sampler::Sampler,
+    nb_simulations::Int64
+)
+
+    nb_lost = 0
+    nb_fixations = 0
+    for i = 1:nb_simulations
+        fixation_status, lost_status, num_generations, history = trace_allele(
+            nb_indiv_type_1, population_size_modifier, fecundity_selection_modifier, viability_selection_modifier, sampler)
+        if lost_status
+            nb_lost += 1
+        end
+        if fixation_status
+            nb_fixations += 1
+        end
+    end
+    p_fixation = nb_fixations/nb_simulations
+    p_lost = nb_lost/nb_simulations
+    return (p_fixation, p_lost)
 end;
 
 function bootstrap_fixation_time(

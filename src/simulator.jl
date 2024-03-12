@@ -165,7 +165,17 @@ end
 
         @assert simulation_type == "time" || simulation_type == "probability" "simulations typ should be {time, probability}"
         if simulation_type == "probability"
-            fixation_probability = CanningsSimulator.bootstrap_fixation_probability(
+            ## For fixation probabilites only
+            # fixation_probability = CanningsSimulator.bootstrap_fixation_probability(
+            #             nb_indiv_type_1,
+            #             population_size_mode,
+            #             fecundity,
+            #             viability,
+            #             offspring_sampler,
+            #             nb_simulations
+            #         );
+
+            fixation_probability, lost_probability = CanningsSimulator.bootstrap_fixation_and_lost_probabilities(
                         nb_indiv_type_1,
                         population_size_mode,
                         fecundity,
@@ -177,6 +187,7 @@ end
             if selection_type != "both"
                 df = DataFrame(Dict("parameter"=>parameter, "population_size"=>population_size,
                 "fixation_probability"=>fixation_probability,
+                "lost_probability" =>lost_probability,
                 "selection_type"=>selection_type, 
                 "selection_coefficient"=>selection_coefficient,
                 "selection_period"=>selection_period, 
@@ -185,6 +196,7 @@ end
             else
                 df = DataFrame(Dict("parameter"=>parameter, "population_size"=>population_size,
                 "fixation_probability"=>fixation_probability,
+                "lost_probability" =>lost_probability,
                 "selection_type"=>selection_type, 
                 "selection_coefficient"=>selection_coefficient,
                 "selection_coefficient2"=>selection_coefficient2,
@@ -263,7 +275,3 @@ end
     end
     
     main()
-
-
-
-    
