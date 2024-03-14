@@ -161,7 +161,7 @@ end
         end
 
 
-        nb_indiv_type_1 = 1
+        nb_indiv_type_1 = 0.5*population_size
 
         @assert simulation_type == "time" || simulation_type == "probability" "simulations typ should be {time, probability}"
         if simulation_type == "probability"
@@ -191,7 +191,8 @@ end
                 "selection_type"=>selection_type, 
                 "selection_coefficient"=>selection_coefficient,
                 "selection_period"=>selection_period, 
-                "population_size_model"=>population_size_model)
+                "population_size_model"=>population_size_model,
+                "N_simulations"=>nb_simulations)
                 )
             else
                 df = DataFrame(Dict("parameter"=>parameter, "population_size"=>population_size,
