@@ -3,6 +3,7 @@ using .CanningsSimulator
 using DataFrames
 using ArgParse
 using CSV
+using Printf
 
 
 function parse_commandline()
@@ -10,15 +11,20 @@ function parse_commandline()
 
     @add_arg_table s begin
 
-        "--selection_type", "-t"
-            help="type of selection ∈ {fecundity_constant, fecundity_sinus viability_constant, viability_sinus, both}"
-            arg_type=String
-            required = true
-
         "--selection_coefficient", "-s"
              help="selection coefficient"
              arg_type = Float64
              required = true
+
+        "--population_size", "-N"
+            arg_type=Int
+            required=true
+
+        "--selection_type", "-t"
+            help="type of selection ∈ {fecundity_constant, fecundity_sinus viability_constant, viability_sinus, both}"
+            arg_type=String
+            required = false
+            default="viability_constant"
 
         "--selection_coefficient2"
              help="selection coefficient2; used for fecundity only if selection type is both"
@@ -26,12 +32,23 @@ function parse_commandline()
              required = false
              default=0.0
 
+        "--initial_count", "-i"
+            help="initial count of mutation in the population. Integer for count of mutations"
+            arg_type=Int64
+            required=false
+            default=1
+
+        "--initial_frequency", "-I"
+            help="x between [0 , 1] for initial population frequency."
+            arg_type=Float64
+            required=false
+            default=nothing
+
         "--selection_period"
              help="period for variable selection"
              arg_type = Float64
              required = false
              default=0.06283 # 100 generations or 500 (0.01256)
-
 
         "--offspring_model", "-m"
             arg_type = String
@@ -39,26 +56,31 @@ function parse_commandline()
 
         "--parameter", "-p"
             arg_type=Float64
-            default=-1.0
-
-        "--population_size", "-N"
-            arg_type=Int
-            required=true
+            default=2.0
 
         "--population_size_model", "-c"
-            arg_type=String
             help="type of population size model ∈ {constant, sinus}"
-            required=true
+            arg_type=String
+            required=false
+            default="constant"
 
         "--output_name", "-o"
             arg_type=String
             help="first part of output file name"
-            required=true
+            required=false
+            default="simulation"
+
+        "--output_off", "-O"
+            arg_type=Int
+            help="set as 1 to silence file output. stdout only."
+            required=false
+            default=0
 
         "--type"
             arg_type=String
             help="type of simulation ∈ {time, probability}"
-            required=true
+            required=false
+            default="probability"
 
         "--shiftsinusby"
             arg_type=Float64
@@ -67,7 +89,7 @@ function parse_commandline()
             default=0.0
 
 
-        "--nb_simulations"
+        "--nb_simulations", "-n"
             arg_type=Int
             help="Number of simulations"
             default=250000
@@ -84,15 +106,18 @@ end
         selection_type::String = parsed_args["selection_type"]
         selection_coefficient::Float64 = parsed_args["selection_coefficient"]
         selection_coefficient2::Float64 = parsed_args["selection_coefficient2"]
+        initial_count::Int = parsed_args["initial_count"]
         offspring_model::String = parsed_args["offspring_model"]
         parameter::Float64 = parsed_args["parameter"]
         population_size::Int = parsed_args["population_size"]
         population_size_model::String = parsed_args["population_size_model"]
         output_name::String = parsed_args["output_name"]
+        output_off::Int = parsed_args["output_off"]
         nb_simulations::Int = parsed_args["nb_simulations"]
         simulation_type::String = parsed_args["type"]
         shiftsinusby::Float64 = parsed_args["shiftsinusby"]
         selection_period::Float64 = parsed_args["selection_period"]
+
 
 
         #println(selection_period)
@@ -161,7 +186,23 @@ end
         end
 
 
-        nb_indiv_type_1 = 0.5*population_size
+        if parsed_args["initial_frequency"] != nothing
+            @printf("Initial frequency supplied: %.1f\n", initial_frequency)
+            initial_frequency::Float64 = parsed_args["initial_frequency"]
+
+            nb_indiv_type_1 = floor(Int64, initial_frequency*population_size)
+        else
+            nb_indiv_type_1 = initial_count
+        end
+
+        printf("Simulating %d runs of %s population model with %d individuals\nSelection coefficient = %f and initial count of %d",
+               offspring_model, population_size, selection_coefficient, nb_indiv_type_1)
+
+        if output_off == 0
+            println("\nSimulation will be saved to output file...")
+        else
+            println("No output file will be recorded!")
+        end
 
         @assert simulation_type == "time" || simulation_type == "probability" "simulations typ should be {time, probability}"
         if simulation_type == "probability"
@@ -183,6 +224,10 @@ end
                         offspring_sampler,
                         nb_simulations
                     );
+
+        @printf("Probability of fixation: P = %0.5f\n", fixation_probability)
+        @printf("Probability of loss: P = %0.5f\n", lost_probability)
+
 
             if selection_type != "both"
                 df = DataFrame(Dict("parameter"=>parameter, "population_size"=>population_size,
@@ -240,8 +285,6 @@ end
                 "population_size_model"=>population_size_model)
                 )
             end
-            
-
         end
 
 
@@ -251,6 +294,8 @@ end
         #fixation_probability,parameter,population_size,population_size_model,selection_coefficient,selection_type
 
 
+#println("saving simulation to file...")
+if output_off == 0
         if selection_type != "both"
             CSV.write(string("./simulations/",
             output_name,"_", "population_size_", population_size, "_", "size_model_",  population_size_model, "_",
@@ -272,7 +317,8 @@ end
              "_nb_simulations_", nb_simulations, "_shifted_", shiftsinusby,
             ".csv"), df)
         end
-
+    else
+       end
     end
-    
-    main()
+
+main()
