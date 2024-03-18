@@ -195,11 +195,11 @@ end
             nb_indiv_type_1 = initial_count
         end
 
-        printf("Simulating %d runs of %s population model with %d individuals\nSelection coefficient = %f and initial count of %d",
-               offspring_model, population_size, selection_coefficient, nb_indiv_type_1)
+        @printf("\nSimulating %s population model (a = %g) with %d individuals\nSelection coefficient = %g and initial count of %d\n",
+               offspring_model, parameter, population_size, selection_coefficient, nb_indiv_type_1)
 
         if output_off == 0
-            println("\nSimulation will be saved to output file...")
+            println("Simulation will be saved to output file...")
         else
             println("No output file will be recorded!")
         end
@@ -225,8 +225,7 @@ end
                         nb_simulations
                     );
 
-        @printf("Probability of fixation: P = %0.5f\n", fixation_probability)
-        @printf("Probability of loss: P = %0.5f\n", lost_probability)
+        @printf("Probability of fixation: P = %0.5f; Probability of loss: P = %0.5f\n", fixation_probability, lost_probability)
 
 
             if selection_type != "both"
@@ -319,6 +318,7 @@ if output_off == 0
         end
     else
        end
+    @printf("Simulation of %s runs finished!\n", nb_simulations)
     end
 
 main()
