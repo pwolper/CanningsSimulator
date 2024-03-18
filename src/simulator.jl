@@ -107,6 +107,7 @@ end
         selection_coefficient::Float64 = parsed_args["selection_coefficient"]
         selection_coefficient2::Float64 = parsed_args["selection_coefficient2"]
         initial_count::Int = parsed_args["initial_count"]
+        initial_frequency = parsed_args["initial_frequency"]
         offspring_model::String = parsed_args["offspring_model"]
         parameter::Float64 = parsed_args["parameter"]
         population_size::Int = parsed_args["population_size"]
@@ -187,7 +188,7 @@ end
 
 
         if parsed_args["initial_frequency"] != nothing
-            @printf("Initial frequency supplied: %.1f\n", initial_frequency)
+            @printf("Initial frequency supplied: %.1f", initial_frequency)
             initial_frequency::Float64 = parsed_args["initial_frequency"]
 
             nb_indiv_type_1 = floor(Int64, initial_frequency*population_size)
