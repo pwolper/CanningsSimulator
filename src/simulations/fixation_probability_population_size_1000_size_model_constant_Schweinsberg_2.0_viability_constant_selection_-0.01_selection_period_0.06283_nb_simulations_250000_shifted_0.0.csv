@@ -1,0 +1,2 @@
+fixation_probability,lost_probability,parameter,population_size,population_size_model,selection_coefficient,selection_period,selection_type,N_simulations
+1.2e-5,0.999988,2.0,1000,constant,-0.01,0.06283,viability_constant,250000
