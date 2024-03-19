@@ -8,3 +8,5 @@ tmp/
 build
 htmlcov
 simulations/
+*.out
+*.err
