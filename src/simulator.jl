@@ -233,6 +233,8 @@ end
                 df = DataFrame(Dict("parameter"=>parameter, "population_size"=>population_size,
                 "fixation_probability"=>fixation_probability,
                 "lost_probability" =>lost_probability,
+		"offspring_model"=>offspring_model,
+		"initial_count" =>nb_indiv_type_1,
                 "selection_type"=>selection_type, 
                 "selection_coefficient"=>selection_coefficient,
                 "selection_period"=>selection_period, 
@@ -300,10 +302,9 @@ if output_off == 0
             CSV.write(string("./simulations/",
             output_name,"_", "population_size_", population_size, "_", "size_model_",  population_size_model, "_",
             offspring_model,"_", parameter, "_", selection_type,
-            "_selection_", selection_coefficient,
-            "_selection_period_", selection_period,
+            "_selection_", selection_coefficient,		
+	    "_initial_", nb_indiv_type_1,
             "_nb_simulations_", nb_simulations,
-            "_shifted_", shiftsinusby,
             ".csv"), df)
         else
             CSV.write(string("./simulations/",
